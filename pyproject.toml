@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "statehouse"
+version = "0.1.0"
+description = "Legislative and regulatory document ingestion platform"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "Kenta Goto", email = "star-q@outlook.com" }]
+
+dependencies = [
+    "python-dateutil==2.8.2",
+    "PyYAML==6.0.1",
+]
+
+[project.optional-dependencies]
+scraping = [
+    "Scrapy==2.11.0",
+    "selenium==4.15.2",
+    "lxml==4.9.3",
+    "w3lib==2.1.2",
+]
+storage = [
+    "psycopg[binary]==3.1.13",
+    "boto3==1.29.7",
+    "opensearch-py==2.4.2",
+]
+orchestration = [
+    "apache-airflow==2.7.3",
+]
+dev = [
+    "pytest==7.4.3",
+    "pytest-cov==4.1.0",
+    "ruff==0.1.6",
+    "mypy==1.7.1",
+]
+
+[project.scripts]
+statehouse = "statehouse.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+statehouse = ["py.typed", "config/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q --strict-markers"
+markers = [
+    "integration: requires external services",
+    "browser: requires a real browser driver",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "B", "UP", "C4"]
+ignore = ["E501"]
+src = ["src", "tests"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["statehouse"]
+mypy_path = "src"
+ignore_missing_imports = true
+warn_unused_ignores = true
+disallow_untyped_defs = false

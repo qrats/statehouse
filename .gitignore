@@ -1,7 +1,35 @@
-env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+.venv/
 venv/
-node_modules
-.idea
-__pycache__
-*.pyc
-.serverless
+.env
+.env.*
+!.env.example
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+reports/
+
+# Scrapy
+.scrapy/
+httpcache/
+
+# Airflow local state
+airflow/logs/
+airflow/airflow.db
+airflow/airflow.cfg
+airflow/webserver_config.py
+
+# Local artifacts
+var/
+tmp/
+*.log
