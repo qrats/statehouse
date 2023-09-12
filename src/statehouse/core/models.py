@@ -233,7 +233,14 @@ class Document:
         self.kind = DocumentKind.parse(self.kind, DocumentKind.UNKNOWN)
         self.chamber = Chamber.parse(self.chamber, Chamber.UNKNOWN)
         self.status = BillStatus.parse(self.status, BillStatus.UNKNOWN)
-        self.subjects = sorted({" ".join(s.split()) for s in self.subjects if s and s.strip()})
+        # De-duplicated case-insensitively, keeping the first spelling seen:
+        # portals mix "Health" and "HEALTH" within one page.
+        folded: dict[str, str] = {}
+        for subject in self.subjects:
+            cleaned = " ".join((subject or "").split())
+            if cleaned:
+                folded.setdefault(cleaned.lower(), cleaned)
+        self.subjects = [folded[key] for key in sorted(folded)]
         if self.observed_at is not None:
             self.observed_at = ensure_utc(self.observed_at)
         if (
