@@ -26,13 +26,14 @@ NAMESPACE = uuid.UUID("5f1b6f6a-2d1c-4f2a-9a1a-6b6f2c1d4e88")
 _NON_ALNUM = re.compile(r"[^a-z0-9]+")
 _BILL_NUMBER = re.compile(
     r"""^\s*
-    (?P<prefix>[A-Za-z]{1,6})      # HB, SB, SJR, ACR, HCR ...
+    (?P<prefix>[A-Za-z](?:[\s\.\_]*[A-Za-z]){0,5})   # HB, S.B., H J R ...
     [\s\.\-_]*
     (?P<number>\d{1,6})
-    (?:[\s\.\-_]*(?P<suffix>[A-Za-z]{1,3}))?   # trailing revision letter
+    (?:[\s\.\-_]*(?P<suffix>[A-Za-z]{1,3}))?         # trailing revision letter
     \s*$""",
     re.VERBOSE,
 )
+_PREFIX_NOISE = re.compile(r"[^A-Za-z]+")
 
 
 def slugify(value: str, *, max_length: int = 80) -> str:
@@ -52,15 +53,16 @@ def slugify(value: str, *, max_length: int = 80) -> str:
 def parse_bill_number(raw: str) -> tuple[str, int, str] | None:
     """Split a bill designator into ``(prefix, number, suffix)``.
 
-    ``"hb1234"`` and ``"HB 1234-A"`` parse. The prefix is upper-cased and the
-    suffix upper-cased or empty. Returns ``None`` when the string is not a bill
+    ``"H.B. 1234"``, ``"hb1234"`` and ``"HB 1234-A"`` all parse. Separators
+    inside the prefix are dropped, the prefix is upper-cased, and the suffix is
+    upper-cased or empty. Returns ``None`` when the string is not a bill
     designator at all, which is a normal outcome: portals put resolution titles
     and docket labels in the same column.
     """
     match = _BILL_NUMBER.match(raw or "")
     if not match:
         return None
-    prefix = match.group("prefix").upper()
+    prefix = _PREFIX_NOISE.sub("", match.group("prefix")).upper()
     number = int(match.group("number"))
     suffix = (match.group("suffix") or "").upper()
     return prefix, number, suffix
