@@ -144,6 +144,11 @@ class JurisdictionRegistry(Mapping[str, Jurisdiction]):
     def __len__(self) -> int:
         return len(self._entries)
 
+    def __contains__(self, code: object) -> bool:
+        # Spelled out because ``__getitem__`` raises JurisdictionNotConfigured
+        # rather than KeyError, which Mapping's default would let escape.
+        return str(code).strip().lower() in self._entries
+
     def enabled(self) -> list[Jurisdiction]:
         return [self._entries[code] for code in self if self._entries[code].enabled]
 
