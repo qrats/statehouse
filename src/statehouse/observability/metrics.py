@@ -7,6 +7,7 @@ metrics backend, which keeps the pure-Python layers importable anywhere.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -62,13 +63,15 @@ class MetricsRegistry:
         """Nearest-rank percentile over recorded observations.
 
         Returns ``None`` when nothing has been observed under that key.
+        Nearest-rank rather than interpolated because these series are short
+        and an interpolated p99 over eleven samples is a fiction.
         """
         if not 0.0 < fraction <= 1.0:
             raise ValueError("fraction must be in (0, 1]")
         values = sorted(self.observations.get(_key(name, labels), []))
         if not values:
             return None
-        rank = max(1, int(round(fraction * len(values))))
+        rank = max(1, math.ceil(fraction * len(values)))
         return values[min(rank, len(values)) - 1]
 
     def snapshot(self) -> list[Sample]:
