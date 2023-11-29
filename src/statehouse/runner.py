@@ -192,7 +192,9 @@ def load_batch(
     indexer: SearchIndexer | None = None,
 ) -> LoadResult:
     """Write a batch, emitting change records for anything that moved."""
-    target = sink or _SINK
+    # ``is None`` rather than ``or``: an empty sink is falsy, and silently
+    # swapping the caller's sink for the process-wide one hides every write.
+    target = _SINK if sink is None else sink
     documents = _BATCHES.get(batch_key)
     result = LoadResult()
     changed: list[Document] = []

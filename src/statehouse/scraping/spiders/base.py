@@ -61,7 +61,9 @@ class JurisdictionSpider(_BaseSpider):
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
-        self.registry = registry or default_registry()
+        # ``is None`` rather than ``or``: a registry is a Mapping, so an empty
+        # one is falsy and would be silently replaced by the default.
+        self.registry = default_registry() if registry is None else registry
         if not self.jurisdiction_code:
             raise ParseError("spider does not declare a jurisdiction_code", spider=self.name)
         self.jurisdiction: Jurisdiction = self.registry[self.jurisdiction_code]
