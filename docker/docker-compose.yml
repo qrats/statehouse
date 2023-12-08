@@ -1,0 +1,85 @@
+name: statehouse
+
+# Local stack. Not a production topology — one scheduler, one worker, and the
+# three stores. Enough to run a jurisdiction end to end and look at the result.
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: statehouse
+      POSTGRES_PASSWORD: statehouse
+      POSTGRES_DB: statehouse
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U statehouse"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    environment:
+      discovery.type: single-node
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+    ports: ["9200:9200"]
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  minio:
+    image: minio/minio:RELEASE.2023-11-20T22-40-07Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: statehouse
+      MINIO_ROOT_PASSWORD: statehouse
+    ports: ["9000:9000", "9001:9001"]
+    volumes:
+      - miniodata:/data
+
+  scheduler:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: scheduler
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://statehouse:statehouse@postgres/statehouse
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      STATEHOUSE_ENVIRONMENT: local
+      STATEHOUSE_WAREHOUSE_DSN: postgresql://statehouse:statehouse@postgres:5432/statehouse
+      STATEHOUSE_SEARCH_ENDPOINT: http://opensearch:9200
+      STATEHOUSE_RAW_BUCKET: statehouse-raw-local
+    volumes:
+      - ../airflow/dags:/opt/airflow/dags:ro
+    command: ["standalone"]
+    ports: ["8080:8080"]
+
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: worker
+    depends_on:
+      postgres: { condition: service_healthy }
+      opensearch: { condition: service_started }
+    environment:
+      STATEHOUSE_ENVIRONMENT: local
+      STATEHOUSE_WAREHOUSE_DSN: postgresql://statehouse:statehouse@postgres:5432/statehouse
+      STATEHOUSE_SEARCH_ENDPOINT: http://opensearch:9200
+      STATEHOUSE_BROWSER_HEADLESS: "true"
+    shm_size: 1gb
+    command: ["jurisdictions"]
+
+volumes:
+  pgdata:
+  miniodata:
