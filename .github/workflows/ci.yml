@@ -28,7 +28,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
       - name: Ruff
-        run: ruff check src tests
+        run: ruff check src tests airflow
+      - name: Format check
+        run: ruff format --check src tests
       - name: Mypy
         run: mypy
 
@@ -49,4 +51,56 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
       - name: Unit tests
-        run: pytest -q
+        run: pytest -q --cov=statehouse --cov-report=xml --cov-report=term-missing
+      - name: Coverage floor
+        run: python -m coverage report --fail-under=80
+      - name: Upload coverage
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+          retention-days: 7
+
+  dags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: Install with orchestration extras
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,orchestration]" \
+            --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.3/constraints-3.11.txt"
+      - name: DAG import check
+        env:
+          AIRFLOW_HOME: ${{ runner.temp }}/airflow
+          AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+          AIRFLOW__CORE__DAGS_FOLDER: ${{ github.workspace }}/airflow/dags
+        run: |
+          airflow db init
+          python scripts/check_dags.py
+
+  build:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build worker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: worker
+          push: false
+          tags: statehouse-worker:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke the image
+        run: |
+          docker run --rm statehouse-worker:${{ github.sha }} statehouse version
+          docker run --rm statehouse-worker:${{ github.sha }} statehouse jurisdictions --enabled-only
