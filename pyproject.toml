@@ -7,7 +7,7 @@ name = "statehouse"
 version = "0.1.0"
 description = "Legislative and regulatory document ingestion platform"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 license = { text = "Proprietary" }
 authors = [{ name = "Kenta Goto", email = "star-q@outlook.com" }]
 
@@ -58,13 +58,36 @@ markers = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py310"
 select = ["E", "F", "I", "B", "UP", "C4"]
 ignore = ["E501"]
 src = ["src", "tests"]
 
+[tool.coverage.run]
+source = ["statehouse"]
+branch = false
+# Modules whose bodies only run with an optional dependency installed. CI
+# measures the pure-Python layers, which is what the suite can actually
+# exercise; counting a Scrapy spider as 0% covered says nothing useful and
+# drags the floor down until it stops meaning anything.
+omit = [
+    "*/statehouse/scraping/spiders/*",
+    "*/statehouse/scraping/settings.py",
+    "*/statehouse/scraping/runner.py",
+    "*/statehouse/browser/driver.py",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@(abc\\.)?abstractmethod",
+    "class .*\\(Protocol\\):",
+    "\\.\\.\\.",
+]
+
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.10"
 packages = ["statehouse"]
 mypy_path = "src"
 ignore_missing_imports = true
