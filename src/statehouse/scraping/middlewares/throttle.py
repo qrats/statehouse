@@ -37,13 +37,12 @@ class PolitenessMiddleware:
     def _build_default() -> DomainThrottle:
         registry = default_registry()
         policies = {
-            registrable_host(entry.portal_url): entry.politeness
-            for entry in registry.values()
+            registrable_host(entry.portal_url): entry.politeness for entry in registry.values()
         }
         return DomainThrottle(policies)
 
     @classmethod
-    def from_crawler(cls, crawler: Any) -> "PolitenessMiddleware":  # pragma: no cover
+    def from_crawler(cls, crawler: Any) -> PolitenessMiddleware:  # pragma: no cover
         return cls()
 
     def process_request(self, request: Any, spider: Any) -> None:
@@ -55,7 +54,10 @@ class PolitenessMiddleware:
         wait = self.throttle.wait_time(host, now)
         self.deferred += 1
         raise RateLimited(
-            "host budget exhausted", retry_after_seconds=wait, host=host, spider=getattr(spider, "name", "")
+            "host budget exhausted",
+            retry_after_seconds=wait,
+            host=host,
+            spider=getattr(spider, "name", ""),
         )
 
     def process_response(self, request: Any, response: Any, spider: Any) -> Any:

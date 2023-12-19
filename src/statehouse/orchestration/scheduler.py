@@ -74,7 +74,9 @@ class IngestScheduler:
         if self.min_lag_seconds < 0:
             raise ValueError("min_lag_seconds cannot be negative")
 
-    def score(self, jurisdiction: Jurisdiction, watermark: Watermark | None, now: datetime) -> ScheduleCandidate:
+    def score(
+        self, jurisdiction: Jurisdiction, watermark: Watermark | None, now: datetime
+    ) -> ScheduleCandidate:
         """Score one jurisdiction. Higher is more urgent."""
         lag = lag_seconds(watermark, now)
         if lag is None:

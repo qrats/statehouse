@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from datetime import date
 
 import pytest
 
@@ -128,7 +127,9 @@ class TestCli:
     def test_check_passes_a_clean_batch(self, tmp_path, capsys):
         path = tmp_path / "records.json"
         path.write_text(json.dumps(RECORDS), encoding="utf-8")
-        code = main(["--json", "check", str(path), "--jurisdiction", "zz", "--session", "2023-2024"])
+        code = main(
+            ["--json", "check", str(path), "--jurisdiction", "zz", "--session", "2023-2024"]
+        )
         assert code == EXIT_OK and json.loads(capsys.readouterr().out)["passed"]
 
     def test_check_blocks_a_bad_batch(self, tmp_path, capsys):
@@ -150,7 +151,10 @@ class TestCli:
         assert json.loads(capsys.readouterr().out)["documents"] == 1
 
     def test_a_missing_file_exits_non_zero(self):
-        assert main(["check", "/nowhere/x.json", "--jurisdiction", "zz", "--session", "2024"]) != EXIT_OK
+        assert (
+            main(["check", "/nowhere/x.json", "--jurisdiction", "zz", "--session", "2024"])
+            != EXIT_OK
+        )
 
 
 class TestBatchStore:

@@ -157,7 +157,7 @@ def build_dag(jurisdiction: Jurisdiction) -> Any:
                     op_kwargs={"jurisdiction_code": jurisdiction.code},
                 )
             )
-        for upstream, downstream in zip(steps, steps[1:]):
+        for upstream, downstream in zip(steps, steps[1:], strict=False):
             upstream >> downstream
 
     return dag

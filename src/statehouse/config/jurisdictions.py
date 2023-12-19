@@ -116,7 +116,7 @@ class Jurisdiction:
             return self.session_pattern.format(biennium=f"{start}-{start + 1}", year=year)
         return self.session_pattern.format(year=year)
 
-    def with_politeness(self, **changes: object) -> "Jurisdiction":
+    def with_politeness(self, **changes: object) -> Jurisdiction:
         return replace(self, politeness=replace(self.politeness, **changes))  # type: ignore[arg-type]
 
 
@@ -166,7 +166,7 @@ class JurisdictionRegistry(Mapping[str, Jurisdiction]):
             return self.enabled()
         return [self[code] for code in wanted]
 
-    def replace(self, entry: Jurisdiction) -> "JurisdictionRegistry":
+    def replace(self, entry: Jurisdiction) -> JurisdictionRegistry:
         merged = dict(self._entries)
         merged[entry.code] = entry
         return JurisdictionRegistry(merged.values())

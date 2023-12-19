@@ -23,6 +23,8 @@ __all__ = [
     "MONTHS",
 ]
 
+# The layout is the point: one line per month reads as a lookup table.
+# fmt: off
 MONTHS: dict[str, int] = {
     "jan": 1, "january": 1,
     "feb": 2, "february": 2,
@@ -37,6 +39,7 @@ MONTHS: dict[str, int] = {
     "nov": 11, "november": 11,
     "dec": 12, "december": 12,
 }
+# fmt: on
 
 _ISO = re.compile(r"^(\d{4})-(\d{1,2})-(\d{1,2})$")
 _US = re.compile(r"^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})$")
@@ -180,7 +183,7 @@ def session_years(start_year: int, end_year: int, *, biennial: bool = False) -> 
     if not biennial:
         return list(range(start_year, end_year + 1))
     first = start_year if start_year % 2 == 1 else start_year - 1
-    return [year for year in range(first, end_year + 1, 2)]
+    return list(range(first, end_year + 1, 2))
 
 
 def clamp_date(value: date, lower: date | None = None, upper: date | None = None) -> date:

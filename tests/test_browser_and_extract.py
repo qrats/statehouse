@@ -277,9 +277,7 @@ class TestTables:
         assert len(parse_tables(markup)[0].rows[0]) == 3
 
     def test_extra_cells_land_in_a_catch_all(self):
-        markup = (
-            "<table><tr><th>A</th></tr><tr><td>one</td><td>two</td></tr></table>"
-        )
+        markup = "<table><tr><th>A</th></tr><tr><td>one</td><td>two</td></tr></table>"
         assert parse_tables(markup)[0].records()[0]["_extra"] == "two"
 
     def test_unclosed_rows_still_parse(self):

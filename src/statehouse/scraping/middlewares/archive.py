@@ -60,7 +60,7 @@ class RawArchiveMiddleware:
         self.failures = 0
 
     @classmethod
-    def from_crawler(cls, crawler: Any) -> "RawArchiveMiddleware":  # pragma: no cover
+    def from_crawler(cls, crawler: Any) -> RawArchiveMiddleware:  # pragma: no cover
         return cls()
 
     def process_response(self, request: Any, response: Any, spider: Any) -> Any:
@@ -74,13 +74,15 @@ class RawArchiveMiddleware:
         if raw_headers is not None:
             for key, value in dict(raw_headers).items():
                 name = key.decode() if isinstance(key, bytes) else str(key)
-                first = value[0] if isinstance(value, (list, tuple)) and value else value
+                first = value[0] if isinstance(value, list | tuple) and value else value
                 headers[name] = first.decode() if isinstance(first, bytes) else str(first)
 
         fetch = build_raw_fetch(
             getattr(response, "url", ""),
             getattr(response, "body", b"") or b"",
-            jurisdiction=meta.get("jurisdiction") or getattr(spider, "jurisdiction_code", "unknown"),
+            jurisdiction=str(
+                meta.get("jurisdiction") or getattr(spider, "jurisdiction_code", "unknown")
+            ),
             status=status,
             method=meta.get("method", FetchMethod.HTTP),
             content_type=headers.get("Content-Type", "text/html").split(";")[0],

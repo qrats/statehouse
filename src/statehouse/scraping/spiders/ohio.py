@@ -52,9 +52,7 @@ class OhioSpider(JurisdictionSpider):
         return (start - 2023) // 2 + 135
 
     def index_urls(self) -> list[str]:
-        return [
-            _LIST.format(base=self.jurisdiction.portal_url, ga=self.general_assembly(), page=1)
-        ]
+        return [_LIST.format(base=self.jurisdiction.portal_url, ga=self.general_assembly(), page=1)]
 
     def parse_index(self, response: Any) -> Iterator[Any]:
         self.stats["index_pages"] += 1

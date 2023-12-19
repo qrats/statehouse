@@ -41,7 +41,9 @@ def create_index(**context: Any) -> dict[str, Any]:
     stamp = str(context.get("ds_nodash") or "manual")
     name = target_index_name(settings.search_index_prefix, stamp)
     log = bootstrap_task("reindex.create", index=name)
-    log.info("creating index", extra={"shards": INDEX_SETTINGS["settings"]["index"]["number_of_shards"]})
+    log.info(
+        "creating index", extra={"shards": INDEX_SETTINGS["settings"]["index"]["number_of_shards"]}
+    )
     return {"index": name, "alias": f"{settings.search_index_prefix}-documents"}
 
 
@@ -68,7 +70,9 @@ def flip_alias(**context: Any) -> dict[str, Any]:
     log = bootstrap_task("reindex.flip", index=upstream["index"])
     if upstream["documents"] <= 0:
         raise RuntimeError("refusing to alias an empty index")
-    log.info("alias flipped", extra={"alias": upstream["alias"], "documents": upstream["documents"]})
+    log.info(
+        "alias flipped", extra={"alias": upstream["alias"], "documents": upstream["documents"]}
+    )
     return {"alias": upstream["alias"], "index": upstream["index"]}
 
 

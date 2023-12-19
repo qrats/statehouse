@@ -28,7 +28,7 @@ class NormalisePipeline:
         self.errors: list[str] = []
 
     @classmethod
-    def from_crawler(cls, crawler: Any) -> "NormalisePipeline":  # pragma: no cover
+    def from_crawler(cls, crawler: Any) -> NormalisePipeline:  # pragma: no cover
         return cls()
 
     def process_item(self, item: Any, spider: Any) -> Any:

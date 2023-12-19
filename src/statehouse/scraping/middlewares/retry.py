@@ -66,7 +66,7 @@ class ClassifyingRetryMiddleware:
         self.counts: dict[str, int] = {}
 
     @classmethod
-    def from_crawler(cls, crawler: Any) -> "ClassifyingRetryMiddleware":  # pragma: no cover
+    def from_crawler(cls, crawler: Any) -> ClassifyingRetryMiddleware:  # pragma: no cover
         return cls()
 
     def _count(self, label: str) -> None:

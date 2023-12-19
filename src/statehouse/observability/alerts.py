@@ -142,9 +142,7 @@ def evaluate_alerts(
         )
         if staleness is not None:
             alerts.append(staleness)
-        failure = _failure_alert(
-            jurisdiction, runs.consecutive_failures(jurisdiction.code), active
-        )
+        failure = _failure_alert(jurisdiction, runs.consecutive_failures(jurisdiction.code), active)
         if failure is not None:
             alerts.append(failure)
 

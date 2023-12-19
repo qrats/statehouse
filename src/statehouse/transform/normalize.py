@@ -140,7 +140,7 @@ def normalise_versions(
         )
     dated = sorted(
         (item for item in built if item[1].published_on is not None),
-        key=lambda item: (item[1].published_on, item[0]),  # type: ignore[arg-type,return-value]
+        key=lambda item: (item[1].published_on, item[0]),
     )
     undated = [item for item in built if item[1].published_on is None]
     return [version for _index, version in dated] + [version for _index, version in undated]
@@ -164,7 +164,9 @@ def normalise_document(
     Raises :class:`~statehouse.core.errors.ValidationError` when the record has
     no usable identifier.
     """
-    identifier = clean_text(str(raw.get("identifier") or raw.get("bill_number") or ""), keep_paragraphs=False)
+    identifier = clean_text(
+        str(raw.get("identifier") or raw.get("bill_number") or ""), keep_paragraphs=False
+    )
     if not identifier:
         raise ValidationError("record has no identifier", jurisdiction=jurisdiction)
 
@@ -223,5 +225,5 @@ def normalise_document(
         versions=normalise_versions(raw.get("versions"), source=source),
         source=source,
         observed_at=utc_now(clock),
-        extras={k: v for k, v in (raw.get("extras") or {}).items()},
+        extras=dict(raw.get("extras") or {}),
     )

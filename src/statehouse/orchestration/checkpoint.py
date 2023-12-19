@@ -42,7 +42,9 @@ class Checkpoint:
         if self.updated_at is not None:
             self.updated_at = ensure_utc(self.updated_at)
         self.completed = list(dict.fromkeys(self.completed))
-        self.pending = [item for item in dict.fromkeys(self.pending) if item not in set(self.completed)]
+        self.pending = [
+            item for item in dict.fromkeys(self.pending) if item not in set(self.completed)
+        ]
 
     @property
     def key(self) -> str:
@@ -56,7 +58,7 @@ class Checkpoint:
     def exhausted(self) -> bool:
         return not self.pending
 
-    def mark_done(self, unit: str, *, clock: Clock | None = None) -> "Checkpoint":
+    def mark_done(self, unit: str, *, clock: Clock | None = None) -> Checkpoint:
         """Record ``unit`` as completed and drop it from pending.
 
         Marking something done twice is a no-op rather than an error: a
@@ -68,7 +70,7 @@ class Checkpoint:
         self.updated_at = utc_now(clock)
         return self
 
-    def enqueue(self, units: Iterable[str]) -> "Checkpoint":
+    def enqueue(self, units: Iterable[str]) -> Checkpoint:
         """Add work, skipping anything already done or queued."""
         known = set(self.completed) | set(self.pending)
         for unit in units:
@@ -95,7 +97,7 @@ class Checkpoint:
         return json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
     @classmethod
-    def from_json(cls, raw: str) -> "Checkpoint":
+    def from_json(cls, raw: str) -> Checkpoint:
         """Decode a checkpoint, rejecting anything unusable.
 
         A schema from the future is refused rather than guessed at; an older
@@ -118,7 +120,9 @@ class Checkpoint:
         updated: datetime | None = None
         if updated_raw:
             try:
-                updated = ensure_utc(datetime.fromisoformat(str(updated_raw).replace("Z", "+00:00")))
+                updated = ensure_utc(
+                    datetime.fromisoformat(str(updated_raw).replace("Z", "+00:00"))
+                )
             except ValueError as exc:
                 raise CheckpointCorrupt("checkpoint has an unreadable timestamp") from exc
         return cls(

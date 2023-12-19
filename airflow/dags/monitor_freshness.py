@@ -39,9 +39,7 @@ def collect_state(**_context: Any) -> dict[str, Any]:
             {
                 "jurisdiction": w.jurisdiction,
                 "stream": w.stream,
-                "observed_through": w.observed_through.isoformat()
-                if w.observed_through
-                else None,
+                "observed_through": w.observed_through.isoformat() if w.observed_through else None,
                 "revision": w.revision,
             }
             for w in watermarks
@@ -88,7 +86,7 @@ def publish_digest(**context: Any) -> dict[str, Any]:
     if criticals:
         raise RuntimeError(
             f"{len(criticals)} critical freshness alerts: "
-            + ", ".join(sorted({a['subject'] for a in criticals}))
+            + ", ".join(sorted({a["subject"] for a in criticals}))
         )
     return {"alerts": len(alerts), "critical": 0}
 

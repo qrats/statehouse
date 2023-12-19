@@ -27,7 +27,9 @@ UTC = timezone.utc
 
 
 class TestSourceRef:
-    def test_jurisdiction_is_lowercased(self, ):
+    def test_jurisdiction_is_lowercased(
+        self,
+    ):
         assert SourceRef(jurisdiction="CA", url="https://x.test/a").jurisdiction == "ca"
 
     def test_a_url_is_required(self):
@@ -156,9 +158,10 @@ class TestDocument:
         assert make_document(versions=[]).latest_version is None
 
     def test_metadata_fingerprint_moves_with_the_title(self):
-        assert make_document().metadata_fingerprint() != make_document(
-            title="A different title entirely"
-        ).metadata_fingerprint()
+        assert (
+            make_document().metadata_fingerprint()
+            != make_document(title="A different title entirely").metadata_fingerprint()
+        )
 
     def test_metadata_fingerprint_ignores_the_docket(self):
         with_actions = make_document(actions=[make_action(), make_action("2024-02-02", "Reported")])

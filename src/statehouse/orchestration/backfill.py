@@ -72,7 +72,7 @@ class BackfillPlan:
             raise ValueError("count cannot be negative")
         return self.slices[:count]
 
-    def without(self, labels: Iterable[str]) -> "BackfillPlan":
+    def without(self, labels: Iterable[str]) -> BackfillPlan:
         """Drop slices already completed, by label."""
         done = set(labels)
         return BackfillPlan(
@@ -176,8 +176,6 @@ class BackfillPlanner:
         merged: list[BackfillSlice] = []
         for jurisdiction in jurisdictions:
             merged.extend(
-                self.plan(
-                    jurisdiction, through=through, completed_labels=completed_labels
-                ).slices
+                self.plan(jurisdiction, through=through, completed_labels=completed_labels).slices
             )
         return sorted(merged, key=lambda s: (-s.priority, s.jurisdiction, s.start))

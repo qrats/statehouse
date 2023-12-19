@@ -27,9 +27,7 @@ def check(dag_folder: Path) -> list[str]:
     from airflow.models import DagBag
 
     bag = DagBag(dag_folder=str(dag_folder), include_examples=False)
-    problems: list[str] = [
-        f"{path}: {error}" for path, error in sorted(bag.import_errors.items())
-    ]
+    problems: list[str] = [f"{path}: {error}" for path, error in sorted(bag.import_errors.items())]
     if not bag.dags and not problems:
         problems.append(f"{dag_folder}: no DAGs were discovered")
 

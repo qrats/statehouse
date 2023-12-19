@@ -120,9 +120,7 @@ def check_terminal_consistency(batch: Sequence[Document]) -> list[QualityFinding
             continue
         ordered = document.ordered_actions()
         terminal_dates = [
-            action.occurred_on
-            for action in ordered
-            if action.resulting_status in TERMINAL_STATUSES
+            action.occurred_on for action in ordered if action.resulting_status in TERMINAL_STATUSES
         ]
         if terminal_dates and ordered[-1].occurred_on > max(terminal_dates):
             findings.append(

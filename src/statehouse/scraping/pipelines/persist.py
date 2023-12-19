@@ -45,7 +45,7 @@ class PersistPipeline:
         self.diffs: list[DocumentDiff] = []
 
     @classmethod
-    def from_crawler(cls, crawler: Any) -> "PersistPipeline":  # pragma: no cover
+    def from_crawler(cls, crawler: Any) -> PersistPipeline:  # pragma: no cover
         return cls()
 
     def process_item(self, item: Any, spider: Any) -> Any:

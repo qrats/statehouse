@@ -156,7 +156,9 @@ class TestDates:
         chunks = chunk_range(date(2024, 1, 1), date(2024, 3, 31), 30)
         assert chunks[0][0] == date(2024, 1, 1)
         assert chunks[-1][1] == date(2024, 3, 31)
-        assert all(later[0] > earlier[1] for earlier, later in zip(chunks, chunks[1:]))
+        assert all(
+            later[0] > earlier[1] for earlier, later in zip(chunks, chunks[1:], strict=False)
+        )
 
     def test_the_final_chunk_is_short_rather_than_overshooting(self):
         chunks = chunk_range(date(2024, 1, 1), date(2024, 1, 10), 7)
@@ -232,7 +234,9 @@ class TestRetry:
 
     def test_the_final_failure_is_re_raised(self):
         with pytest.raises(FetchError):
-            call_with_retry(lambda: (_ for _ in ()).throw(FetchError("x")), RetryPolicy(max_attempts=2))
+            call_with_retry(
+                lambda: (_ for _ in ()).throw(FetchError("x")), RetryPolicy(max_attempts=2)
+            )
 
     def test_retry_after_overrides_the_computed_backoff(self):
         slept: list[float] = []
@@ -269,10 +273,13 @@ class TestRetry:
         assert seen == [2]
 
     def test_first_success_takes_the_first_that_works(self):
-        assert first_success(
-            [lambda: (_ for _ in ()).throw(FetchError("a")), lambda: "b"],
-            policy=RetryPolicy(max_attempts=1),
-        ) == "b"
+        assert (
+            first_success(
+                [lambda: (_ for _ in ()).throw(FetchError("a")), lambda: "b"],
+                policy=RetryPolicy(max_attempts=1),
+            )
+            == "b"
+        )
 
     def test_first_success_raises_the_last_error(self):
         with pytest.raises(FetchError):

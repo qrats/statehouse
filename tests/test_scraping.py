@@ -235,7 +235,7 @@ class _Request:
         self.headers: dict[str, str] = {}
         self.priority = 0
 
-    def replace(self, **_kwargs: object) -> "_Request":
+    def replace(self, **_kwargs: object) -> _Request:
         clone = _Request(self.url, dict(self.meta))
         clone.priority = self.priority
         return clone

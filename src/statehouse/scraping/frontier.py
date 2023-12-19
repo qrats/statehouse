@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import heapq
 from collections.abc import Iterable, Iterator
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from statehouse.utils.urls import canonical_url, registrable_host, same_site
 

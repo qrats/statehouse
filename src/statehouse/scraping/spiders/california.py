@@ -102,7 +102,9 @@ class CaliforniaSpider(JurisdictionSpider):
         if body:
             item["versions"].append(
                 {
-                    "label": clean_text(response.css("#version_select option[selected]::text").get() or "current"),
+                    "label": clean_text(
+                        response.css("#version_select option[selected]::text").get() or "current"
+                    ),
                     "text": body,
                     "published_on": item.get("introduced_on"),
                 }

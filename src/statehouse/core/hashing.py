@@ -98,7 +98,7 @@ def field_digest(values: Mapping[str, object], fields: Iterable[str] | None = No
         raw = values.get(key)
         if raw is None or raw == "":
             rendered = ""
-        elif isinstance(raw, (list, tuple)):
+        elif isinstance(raw, list | tuple):
             rendered = "|".join(sorted(str(item) for item in raw))
         else:
             rendered = str(raw)

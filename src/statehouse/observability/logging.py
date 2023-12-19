@@ -13,12 +13,14 @@ from typing import Any
 
 __all__ = ["JsonFormatter", "configure_logging", "get_logger", "bind", "ScrapyLogFormatter"]
 
+# fmt: off
 _RESERVED = {
     "args", "asctime", "created", "exc_info", "exc_text", "filename", "funcName",
     "levelname", "levelno", "lineno", "module", "msecs", "message", "msg", "name",
     "pathname", "process", "processName", "relativeCreated", "stack_info",
     "thread", "threadName", "taskName",
 }
+# fmt: on
 
 
 class JsonFormatter(logging.Formatter):
@@ -51,16 +53,18 @@ class JsonFormatter(logging.Formatter):
 
 
 def _safe(value: Any) -> Any:
-    if isinstance(value, (str, int, float, bool)) or value is None:
+    if isinstance(value, str | int | float | bool) or value is None:
         return value
-    if isinstance(value, (list, tuple, set)):
+    if isinstance(value, list | tuple | set):
         return [_safe(item) for item in value]
     if isinstance(value, dict):
         return {str(k): _safe(v) for k, v in value.items()}
     return str(value)
 
 
-def configure_logging(level: str = "INFO", *, fmt: str = "json", service: str = "statehouse") -> None:
+def configure_logging(
+    level: str = "INFO", *, fmt: str = "json", service: str = "statehouse"
+) -> None:
     """Install a single handler on the root logger.
 
     Idempotent: calling it twice replaces the handler rather than adding a
@@ -73,9 +77,7 @@ def configure_logging(level: str = "INFO", *, fmt: str = "json", service: str = 
     if fmt == "json":
         handler.setFormatter(JsonFormatter(service=service))
     else:
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)-7s %(name)s %(message)s")
-        )
+        handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)-7s %(name)s %(message)s"))
     root.addHandler(handler)
     root.setLevel(getattr(logging, level.upper(), logging.INFO))
     logging.getLogger("urllib3").setLevel(logging.WARNING)

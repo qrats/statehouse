@@ -8,6 +8,7 @@ against raw strings read naturally in the spiders.
 from __future__ import annotations
 
 from enum import Enum
+from typing import TypeVar
 
 __all__ = [
     "Chamber",
@@ -21,6 +22,10 @@ __all__ = [
     "SponsorRole",
 ]
 
+#: Bound to the concrete member type so ``Chamber.parse(...)`` is typed as a
+#: ``Chamber`` rather than as the shared base.
+_Member = TypeVar("_Member", bound="_StrEnum")
+
 
 class _StrEnum(str, Enum):
     """``str`` enum with a forgiving parser."""
@@ -29,7 +34,7 @@ class _StrEnum(str, Enum):
         return str(self.value)
 
     @classmethod
-    def parse(cls, value: object, default: "_StrEnum | None" = None) -> "_StrEnum":
+    def parse(cls: type[_Member], value: object, default: _Member | None = None) -> _Member:
         """Coerce ``value`` to a member, case- and separator-insensitively.
 
         ``"IN COMMITTEE"``, ``"in-committee"`` and ``"in_committee"`` all reach

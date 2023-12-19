@@ -29,8 +29,8 @@ except ImportError:  # pragma: no cover
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-    Request = Any  # type: ignore[assignment,misc]
-    Response = Any  # type: ignore[assignment,misc]
+    Request = Any
+    Response = Any
 
 
 __all__ = ["JurisdictionSpider"]

@@ -152,8 +152,7 @@ def cmd_backfill(args: argparse.Namespace, registry: JurisdictionRegistry) -> in
         "skipped_sessions": plan.skipped_sessions,
         "total_days": plan.total_days,
         "slices": [
-            {"session": s.session, "start": s.start, "end": s.end, "label": s.label}
-            for s in slices
+            {"session": s.session, "start": s.start, "end": s.end, "label": s.label} for s in slices
         ],
     }
     lines = [f"{len(slices)} slices over {plan.total_days} days"]
@@ -173,9 +172,7 @@ def cmd_check(args: argparse.Namespace, _registry: JurisdictionRegistry) -> int:
     for record in records:
         try:
             documents.append(
-                normalise_document(
-                    record, jurisdiction=args.jurisdiction, session=args.session
-                )
+                normalise_document(record, jurisdiction=args.jurisdiction, session=args.session)
             )
         except StatehouseError as exc:
             failures.append(str(exc))

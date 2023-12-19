@@ -155,7 +155,8 @@ class TestDeriveStatus:
     def test_an_explicit_resulting_status_is_respected(self):
         actions = [
             make_action(
-                "2024-03-01", "Some local procedural phrasing",
+                "2024-03-01",
+                "Some local procedural phrasing",
                 resulting_status=BillStatus.ENACTED,
             )
         ]

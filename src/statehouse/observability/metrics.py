@@ -8,7 +8,7 @@ metrics backend, which keeps the pure-Python layers importable anywhere.
 from __future__ import annotations
 
 import math
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 
@@ -93,7 +93,12 @@ class MetricsRegistry:
 
 
 @contextmanager
-def timer(registry: MetricsRegistry, name: str, clock: object = None, **labels: str) -> Iterator[None]:
+def timer(
+    registry: MetricsRegistry,
+    name: str,
+    clock: Callable[[], float] | None = None,
+    **labels: str,
+) -> Iterator[None]:
     """Record how long a block took.
 
     ``clock`` is any zero-argument callable returning a float; the default is
@@ -102,7 +107,7 @@ def timer(registry: MetricsRegistry, name: str, clock: object = None, **labels: 
     """
     import time as _time
 
-    tick = clock if callable(clock) else _time.monotonic
+    tick = clock if clock is not None else _time.monotonic
     started = tick()
     try:
         yield

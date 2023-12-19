@@ -69,7 +69,9 @@ class TestSponsorParsing:
         assert sponsors[1].role is SponsorRole.COSPONSOR
 
     def test_a_list_without_promotion_leaves_roles_unknown(self):
-        assert parse_sponsor_list("Smith; Jones", primary_first=False)[0].role is SponsorRole.UNKNOWN
+        assert (
+            parse_sponsor_list("Smith; Jones", primary_first=False)[0].role is SponsorRole.UNKNOWN
+        )
 
     def test_an_already_split_list_is_accepted(self):
         assert len(parse_sponsor_list(["Smith", "Jones"])) == 2
@@ -78,7 +80,9 @@ class TestSponsorParsing:
         assert len(parse_sponsor_list("Smith; --; Jones")) == 2
 
     def test_a_default_chamber_is_applied(self):
-        assert parse_sponsor_list("Smith", default_chamber=Chamber.UPPER)[0].chamber is Chamber.UPPER
+        assert (
+            parse_sponsor_list("Smith", default_chamber=Chamber.UPPER)[0].chamber is Chamber.UPPER
+        )
 
 
 class TestSponsorMerge:
@@ -168,7 +172,10 @@ class TestNormaliseAction:
         assert normalise_action({"action_date": "2024-01-05", "action": "Filed"}) is not None
 
     def test_the_sequence_defaults_to_the_row_index(self):
-        assert normalise_action({"date": "2024-01-05", "description": "Filed"}, sequence=4).sequence == 4
+        assert (
+            normalise_action({"date": "2024-01-05", "description": "Filed"}, sequence=4).sequence
+            == 4
+        )
 
 
 class TestNormaliseVersions:
@@ -304,9 +311,7 @@ class TestNormaliseDocument:
         assert doc.observed_at == clock.now()
 
     def test_a_record_with_no_url_has_no_source(self, clock):
-        doc = normalise_document(
-            self._raw(url=""), jurisdiction="zz", session="2024", clock=clock
-        )
+        doc = normalise_document(self._raw(url=""), jurisdiction="zz", session="2024", clock=clock)
         assert doc.source is None
 
     def test_extras_are_carried_through(self, clock):

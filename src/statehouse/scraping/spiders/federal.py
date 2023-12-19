@@ -36,7 +36,9 @@ def parse_bill_xml(payload: str | bytes) -> dict[str, Any]:
     files, and confusing one for a bill produces a very confusing row.
     """
     try:
-        root = ElementTree.fromstring(payload if isinstance(payload, str) else payload.decode("utf-8"))
+        root = ElementTree.fromstring(
+            payload if isinstance(payload, str) else payload.decode("utf-8")
+        )
     except ElementTree.ParseError as exc:
         raise ParseError("bill status payload is not XML") from exc
 
@@ -77,9 +79,7 @@ def parse_bill_xml(payload: str | bytes) -> dict[str, Any]:
         "identifier": f"{bill_type.upper()}{number}",
         "title": _text(bill, "title"),
         "summary": clean_text(
-            " ".join(
-                _text(node, "text") for node in bill.findall("./summaries/billSummaries/item")
-            )
+            " ".join(_text(node, "text") for node in bill.findall("./summaries/billSummaries/item"))
         ),
         "introduced_on": _text(bill, "introducedDate"),
         "status": _text(bill, "./latestAction/text"),

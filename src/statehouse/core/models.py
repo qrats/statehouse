@@ -46,7 +46,7 @@ __all__ = [
 
 def to_jsonable(value: Any) -> Any:
     """Recursively convert dataclasses, enums and datetimes to JSON types."""
-    if isinstance(value, (str, int, float, bool)) or value is None:
+    if isinstance(value, str | int | float | bool) or value is None:
         return value
     if isinstance(value, datetime):
         return isoformat(value)
@@ -56,7 +56,7 @@ def to_jsonable(value: Any) -> Any:
         return value.value
     if isinstance(value, dict):
         return {str(k): to_jsonable(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple, set)):
+    if isinstance(value, list | tuple | set):
         return [to_jsonable(v) for v in value]
     if hasattr(value, "__dataclass_fields__"):
         return {k: to_jsonable(v) for k, v in asdict(value).items()}
@@ -243,11 +243,7 @@ class Document:
         self.subjects = [folded[key] for key in sorted(folded)]
         if self.observed_at is not None:
             self.observed_at = ensure_utc(self.observed_at)
-        if (
-            self.introduced_on
-            and self.last_action_on
-            and self.last_action_on < self.introduced_on
-        ):
+        if self.introduced_on and self.last_action_on and self.last_action_on < self.introduced_on:
             raise ValidationError(
                 "last_action_on precedes introduced_on",
                 identifier=self.identifier,
@@ -288,7 +284,7 @@ class Document:
     def ordered_actions(self) -> list[Action]:
         return sorted(self.actions, key=Action.sort_key)
 
-    def with_status(self, status: BillStatus) -> "Document":
+    def with_status(self, status: BillStatus) -> Document:
         return replace(self, status=BillStatus.parse(status, BillStatus.UNKNOWN))
 
     def to_dict(self) -> dict[str, Any]:
@@ -356,7 +352,7 @@ class IngestRun:
     def blocking_findings(self) -> list[QualityFinding]:
         return [f for f in self.findings if f.blocking]
 
-    def finish(self, state: RunState, at: datetime) -> "IngestRun":
+    def finish(self, state: RunState, at: datetime) -> IngestRun:
         self.state = RunState.parse(state, RunState.FAILED)
         self.finished_at = ensure_utc(at)
         return self

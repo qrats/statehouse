@@ -187,8 +187,7 @@ def build_upsert_plan(document: Document, diff: DocumentDiff | None = None) -> U
         )
 
     subject_rows = tuple(
-        {"document_id": document.document_id, "subject": subject}
-        for subject in document.subjects
+        {"document_id": document.document_id, "subject": subject} for subject in document.subjects
     )
     if subject_rows:
         plan.deletes.append(("document_subjects", document.document_id))

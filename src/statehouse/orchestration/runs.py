@@ -81,7 +81,9 @@ class RunRegistry:
         run.findings.extend(findings)
         return run
 
-    def finish(self, run_id: str, state: RunState | str, error: BaseException | None = None) -> IngestRun:
+    def finish(
+        self, run_id: str, state: RunState | str, error: BaseException | None = None
+    ) -> IngestRun:
         """Close a run.
 
         A run that wrote something but also hit blocking findings closes as

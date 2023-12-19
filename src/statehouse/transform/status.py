@@ -59,6 +59,8 @@ TERMINAL_STATUSES: frozenset[BillStatus] = frozenset(
 _RANKS: dict[BillStatus, int] = {status: index for index, status in enumerate(STATUS_ORDER)}
 
 # Ordered most-specific first: the first pattern that matches wins.
+# One row per docket phrase, aligned so the table can be scanned.
+# fmt: off
 _ACTION_PATTERNS: tuple[tuple[re.Pattern[str], ActionKind, BillStatus | None], ...] = (
     (re.compile(r"\bveto\s+overrid(?:den|e)\b"), ActionKind.FLOOR_VOTE, BillStatus.VETO_OVERRIDDEN),
     (re.compile(r"\boverrode\s+(?:the\s+)?veto\b"), ActionKind.FLOOR_VOTE, BillStatus.VETO_OVERRIDDEN),
@@ -96,6 +98,7 @@ _ACTION_PATTERNS: tuple[tuple[re.Pattern[str], ActionKind, BillStatus | None], .
     (re.compile(r"\bprefiled\b"), ActionKind.FILING, BillStatus.PREFILED),
     (re.compile(r"\bpre-?filed\b"), ActionKind.FILING, BillStatus.PREFILED),
 )
+# fmt: on
 
 _ORIGIN_HINT = re.compile(r"\b(house|senate|assembly)\b")
 

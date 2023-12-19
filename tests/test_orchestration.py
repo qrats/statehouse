@@ -8,7 +8,12 @@ import pytest
 
 from statehouse.config.jurisdictions import Jurisdiction
 from statehouse.core.enums import FetchMethod, RunState, Severity
-from statehouse.core.errors import CheckpointCorrupt, StatehouseError, WatermarkConflict
+from statehouse.core.errors import (
+    CheckpointCorrupt,
+    StatehouseError,
+    ValidationError,
+    WatermarkConflict,
+)
 from statehouse.core.models import QualityFinding, Watermark
 from statehouse.orchestration.backfill import BackfillPlanner, BackfillSlice
 from statehouse.orchestration.checkpoint import Checkpoint, InMemoryCheckpointStore
@@ -234,7 +239,7 @@ class TestBackfillPlanner:
         )
         by_session = [s for s in plan.slices if s.session == "2023-2024"]
         ordered = sorted(by_session, key=lambda s: s.start)
-        assert all(b.start > a.end for a, b in zip(ordered, ordered[1:]))
+        assert all(b.start > a.end for a, b in zip(ordered, ordered[1:], strict=False))
 
     def test_skipped_sessions_are_named(self, sample_jurisdiction):
         plan = BackfillPlanner().plan(
@@ -285,7 +290,7 @@ class TestBackfillPlanner:
             BackfillPlanner(chunk_days=0)
 
     def test_an_inverted_slice_is_rejected(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             BackfillSlice(
                 jurisdiction="ca", session="2024", start=date(2024, 2, 1), end=date(2024, 1, 1)
             )
@@ -437,7 +442,13 @@ class TestScheduler:
                 jurisdiction="aa", stream="default", observed_through=NOW - timedelta(minutes=1)
             )
         ]
-        plan = IngestScheduler().plan([entry, ], marks, clock=clock)
+        plan = IngestScheduler().plan(
+            [
+                entry,
+            ],
+            marks,
+            clock=clock,
+        )
         assert plan.codes == [] and plan.deferred[0].reason == "within freshness target"
 
     def test_disabled_jurisdictions_never_appear(self, clock):

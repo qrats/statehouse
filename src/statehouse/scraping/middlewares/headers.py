@@ -42,7 +42,7 @@ class RotatingHeadersMiddleware:
         self.user_agent = user_agent or load_settings().user_agent
 
     @classmethod
-    def from_crawler(cls, crawler: Any) -> "RotatingHeadersMiddleware":  # pragma: no cover
+    def from_crawler(cls, crawler: Any) -> RotatingHeadersMiddleware:  # pragma: no cover
         return cls()
 
     def headers_for(self, kind: str) -> dict[str, str]:

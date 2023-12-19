@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from statehouse.core.enums import BillStatus, RunState, Severity
+from statehouse.core.enums import RunState, Severity
 from statehouse.core.errors import StorageError
 from statehouse.core.models import DocumentVersion, RawFetch, Sponsor, Watermark
 from statehouse.load.lake import InMemoryObjectStore, LakeWriter, manifest_key
@@ -52,7 +52,12 @@ class TestUpsertPlan:
 
     def test_a_rich_document_touches_every_child_table(self):
         tables = build_upsert_plan(_rich_document()).tables()
-        assert {"document_versions", "document_actions", "document_sponsors", "document_subjects"} <= set(tables)
+        assert {
+            "document_versions",
+            "document_actions",
+            "document_sponsors",
+            "document_subjects",
+        } <= set(tables)
 
     def test_parents_are_written_before_children(self):
         tables = build_upsert_plan(_rich_document()).tables()
@@ -367,7 +372,10 @@ class TestAlerts:
         assert alerts[0].severity is Severity.CRITICAL
 
     def test_alerts_are_ordered_worst_first(self, registry, clock):
-        marks = [self._watermark("ca", timedelta(hours=8)), self._watermark("tx", timedelta(days=3))]
+        marks = [
+            self._watermark("ca", timedelta(hours=8)),
+            self._watermark("tx", timedelta(days=3)),
+        ]
         alerts = evaluate_alerts(
             [registry["ca"], registry["tx"]], marks, RunRegistry(), clock=clock
         )

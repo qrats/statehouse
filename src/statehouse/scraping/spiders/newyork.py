@@ -21,7 +21,7 @@ _INDEX = "{base}/leg/?default_fld=&leg_video=&bn={prefix}&term={term}&Actions=Y"
 _LINE = re.compile(r"^(?P<date>\d{2}/\d{2}/\d{2})\s+(?P<text>.+)$")
 
 
-def parse_status_line(line: str) -> dict[str, str] | None:
+def parse_status_line(line: str) -> dict[str, Any] | None:
     """Parse one ``MM/DD/YY  description`` docket line.
 
     Returns ``None`` for continuation lines, which the caller appends to the

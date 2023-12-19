@@ -26,7 +26,10 @@ class TestSettings:
         assert load_settings({"STATEHOUSE_MAX_RETRIES": "7"}).max_retries == 7
 
     def test_floats_are_coerced(self):
-        assert load_settings({"STATEHOUSE_REQUEST_TIMEOUT_SECONDS": "12.5"}).request_timeout_seconds == 12.5
+        assert (
+            load_settings({"STATEHOUSE_REQUEST_TIMEOUT_SECONDS": "12.5"}).request_timeout_seconds
+            == 12.5
+        )
 
     @pytest.mark.parametrize("raw,expected", [("true", True), ("0", False), ("YES", True)])
     def test_booleans_are_coerced(self, raw, expected):
@@ -103,13 +106,16 @@ class TestPolitenessPolicy:
 
 class TestJurisdiction:
     def test_the_code_is_lowercased(self, sample_jurisdiction):
-        assert Jurisdiction(
-            code="ZZ",
-            name="n",
-            timezone="UTC",
-            portal_url="https://x.test",
-            adapter="a",
-        ).code == "zz"
+        assert (
+            Jurisdiction(
+                code="ZZ",
+                name="n",
+                timezone="UTC",
+                portal_url="https://x.test",
+                adapter="a",
+            ).code
+            == "zz"
+        )
 
     def test_a_relative_portal_url_is_rejected(self):
         with pytest.raises(ConfigError):

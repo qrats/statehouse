@@ -29,7 +29,7 @@ class QualityPipeline:
         self.blocked_batches = 0
 
     @classmethod
-    def from_crawler(cls, crawler: Any) -> "QualityPipeline":  # pragma: no cover
+    def from_crawler(cls, crawler: Any) -> QualityPipeline:  # pragma: no cover
         return cls()
 
     def process_item(self, item: Any, spider: Any) -> Any:

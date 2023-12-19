@@ -147,7 +147,7 @@ class BrowserPool:
         self._idle.clear()
         self._leased.clear()
 
-    def __enter__(self) -> "BrowserPool":
+    def __enter__(self) -> BrowserPool:
         return self
 
     def __exit__(self, *_exc: object) -> None:

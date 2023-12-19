@@ -23,9 +23,7 @@ REPLACEMENT_TEXT = (
 
 def _versioned(text: str, label: str = "current", day: str = "2024-01-10"):
     return make_document(
-        versions=[
-            DocumentVersion(label=label, text=text, published_on=date.fromisoformat(day))
-        ]
+        versions=[DocumentVersion(label=label, text=text, published_on=date.fromisoformat(day))]
     )
 
 

@@ -85,8 +85,7 @@ def render_text(report: QualityReport, *, limit: int = 20) -> str:
     ]
     counts = report.by_severity
     lines.append(
-        "  "
-        + " ".join(f"{name}={counts[name]}" for name in ("critical", "error", "warn", "info"))
+        "  " + " ".join(f"{name}={counts[name]}" for name in ("critical", "error", "warn", "info"))
     )
     for finding in report.findings[:limit]:
         subject = f" [{finding.subject}]" if finding.subject else ""

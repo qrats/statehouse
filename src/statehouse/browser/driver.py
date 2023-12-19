@@ -38,7 +38,7 @@ class DriverOptions:
             raise ValueError("window_size must be positive")
 
     @classmethod
-    def from_settings(cls, settings: Settings) -> "DriverOptions":
+    def from_settings(cls, settings: Settings) -> DriverOptions:
         return cls(
             headless=settings.browser_headless,
             page_load_timeout=settings.browser_page_load_timeout,
