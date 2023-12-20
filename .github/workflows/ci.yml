@@ -28,9 +28,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
       - name: Ruff
-        run: ruff check src tests airflow
+        run: ruff check src tests airflow scripts
       - name: Format check
-        run: ruff format --check src tests
+        run: ruff format --check src tests airflow scripts
       - name: Mypy
         run: mypy
 
@@ -39,7 +39,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -52,6 +52,9 @@ jobs:
           python -m pip install -e ".[dev]"
       - name: Unit tests
         run: pytest -q --cov=statehouse --cov-report=xml --cov-report=term-missing
+      # The floor covers the pure-Python layers only; the omit list in
+      # pyproject.toml keeps the Scrapy and Selenium modules out of the
+      # measurement, since nothing in this job can import them.
       - name: Coverage floor
         run: python -m coverage report --fail-under=80
       - name: Upload coverage
@@ -70,19 +73,24 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-      - name: Install with orchestration extras
+      # Airflow's constraints file pins the whole world, including tools we
+      # pin ourselves. Installing it first and then adding the package with
+      # --no-deps keeps the two sets from arguing: Airflow already brings
+      # everything statehouse needs at run time.
+      - name: Install Airflow under its constraints
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[dev,orchestration]" \
-            --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.3/constraints-3.11.txt"
-      - name: DAG import check
+          python -m pip install "apache-airflow==2.7.3" \
+            --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.3/constraints-${{ env.PYTHON_VERSION }}.txt"
+          python -m pip install -e . --no-deps
+      - name: DAG import and convention check
         env:
           AIRFLOW_HOME: ${{ runner.temp }}/airflow
           AIRFLOW__CORE__LOAD_EXAMPLES: "False"
           AIRFLOW__CORE__DAGS_FOLDER: ${{ github.workspace }}/airflow/dags
         run: |
           airflow db init
-          python scripts/check_dags.py
+          python scripts/check_dags.py --dags airflow/dags
 
   build:
     needs: [lint, test]
@@ -97,10 +105,11 @@ jobs:
           file: docker/Dockerfile
           target: worker
           push: false
+          load: true
           tags: statehouse-worker:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Smoke the image
         run: |
-          docker run --rm statehouse-worker:${{ github.sha }} statehouse version
-          docker run --rm statehouse-worker:${{ github.sha }} statehouse jurisdictions --enabled-only
+          docker run --rm statehouse-worker:${{ github.sha }} version
+          docker run --rm statehouse-worker:${{ github.sha }} jurisdictions --enabled-only
